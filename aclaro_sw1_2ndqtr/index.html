@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Average Calculator (Simple)</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+    body { font-family: 'Poppins', Arial, Helvetica, sans-serif; margin: 0; background: linear-gradient(135deg, aliceblue 0%, white 45%, lemonchiffon 100%); -webkit-font-smoothing:antialiased; }
+        .card {
+            max-width: 520px; margin: 48px auto; padding: 26px; background: white;
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(14,30,37,0.12); border: 1px solid rgba(0,0,0,0.04);
+        }
+        h1 { font-size: 22px; margin: 0 0 8px; text-align: center; font-weight:700; color:midnightblue }
+        .subtitle { text-align:center; color:slategray; margin-bottom:16px; font-size:14px }
+        label { display:block; margin-top:12px; font-weight:600; color:midnightblue }
+        input[type=number] {
+            width:100%; padding:10px 12px; margin-top:8px; box-sizing:border-box; border-radius:8px; border:1px solid lightsteelblue; background:white;
+            font-size:15px; outline:none; transition:box-shadow .12s, border-color .12s;
+        }
+        input[type=number]:focus { box-shadow:0 6px 18px rgba(46,134,222,0.12); border-color:dodgerblue }
+        .row { display:grid; grid-template-columns:1fr 1fr; gap:12px }
+        .full { grid-column: 1 / -1 }
+        button {
+            width:100%; margin-top:18px; padding:12px; border: none; border-radius:10px;
+            background: linear-gradient(90deg, dodgerblue, skyblue); color:white; font-size:16px; cursor:pointer; font-weight:600; box-shadow:0 8px 20px rgba(46,134,222,0.12);
+        }
+        button:hover { transform:translateY(-2px); }
+        .output { margin-top:16px; font-size:16px; }
+        .note { color:gray; font-size:13px; margin-top:6px; }
+
+        .grade-badge {
+            display:inline-flex; align-items:center; justify-content:center; width:80px; height:80px; line-height:normal; text-align:center;
+            font-size:34px; font-weight:800; color: white; border-radius:18px; transition:transform .18s ease, box-shadow .18s ease;
+        }
+        .grade-badge.pop { transform:scale(1.14); box-shadow:0 12px 30px rgba(15,23,36,0.18) }
+        .grade-A { background: linear-gradient(180deg, mediumseagreen, seagreen); }
+        .grade-B { background: linear-gradient(180deg, skyblue, royalblue); }
+        .grade-C { background: linear-gradient(180deg, gold, darkorange); color:darkslategray }
+        .grade-D { background: linear-gradient(180deg, orange, darkorange); }
+        .grade-F { background: linear-gradient(180deg, salmon, crimson); }
+
+        @media (max-width:520px) {
+            .card { margin:20px; padding:18px }
+            .row { grid-template-columns: 1fr }
+            .grade-badge { width:68px; height:68px; font-size:28px }
+        }
+    </style>
+</head>
+<body>
+    <main class="card">
+        <h1>Simple Grade Average</h1>
+
+        
+        <div class="row">
+            <div>
+                <label for="q1">1st Quarter</label>
+                <input id="q1" type="number" min="0" max="100" placeholder="85">
+            </div>
+            <div>
+                <label for="q2">2nd Quarter</label>
+                <input id="q2" type="number" min="0" max="100" placeholder="90">
+            </div>
+            <div>
+                <label for="q3">3rd Quarter</label>
+                <input id="q3" type="number" min="0" max="100" placeholder="88">
+            </div>
+            <div>
+                <label for="q4">4th Quarter</label>
+                <input id="q4" type="number" min="0" max="100" placeholder="92">
+            </div>
+            <div class="full">
+                <button id="calcBtn">Compute Average</button>
+            </div>
+        </div>
+
+        <div class="output">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div id="letter" class="grade-badge">-</div>
+                <div>
+                    <div style="font-size:16px;font-weight:700;color:#0f1724">Letter Grade</div>
+                    <div style="margin-top:6px">Total average: <strong id="avg">-</strong></div>
+                    <div class="note">Passing is 75 or more.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const q = id => document.getElementById(id);
+        const parseGrade = el => {
+            const v = parseFloat(el.value);
+            return Number.isFinite(v) ? v : null;
+        };
+
+        function letterFromAverage(avg) {
+            if (avg >= 90) return 'A';
+            if (avg >= 80) return 'B';
+            if (avg >= 75) return 'C';
+            if (avg >= 60) return 'D';
+            return 'F';
+        }
+
+        function animateBadge(el) {
+            el.classList.remove('pop');
+            void el.offsetWidth;
+            el.classList.add('pop');
+        }
+
+        function computeAverage() {
+            const grades = [q('q1'), q('q2'), q('q3'), q('q4')].map(parseGrade);
+            if (grades.some(g => g === null)) { alert('Please enter a number for each quarter (0-100).'); return; }
+            for (let i = 0; i < grades.length; i++) { if (grades[i] < 0) grades[i] = 0; if (grades[i] > 100) grades[i] = 100; }
+            const sum = grades.reduce((a,b) => a + b, 0);
+            const average = sum / grades.length;
+            q('avg').textContent = average.toFixed(2);
+            const letter = letterFromAverage(average);
+            const badge = q('letter');
+            badge.textContent = letter;
+            badge.className = 'grade-badge grade-' + letter;
+            animateBadge(badge);
+        }
+
+        q('calcBtn').addEventListener('click', computeAverage);
+        ['q1','q2','q3','q4'].forEach(id => q(id).addEventListener('keydown', e => { if (e.key === 'Enter') computeAverage(); }));
+    </script>
+</body>
+</html>
